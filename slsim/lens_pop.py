@@ -6,6 +6,7 @@ from astropy.cosmology import Cosmology
 from slsim.lens import theta_e_when_source_infinity
 from slsim.Sources.source_pop_base import SourcePopBase
 from slsim.LOS.los_pop import LOSPop
+from slsim.LOS.line_of_sight_galaxies import LineofSightGalaxies
 from slsim.Deflectors.deflectors_base import DeflectorsBase
 from slsim.lensed_population_base import LensedPopulationBase
 
@@ -20,6 +21,8 @@ class LensPop(LensedPopulationBase):
         cosmo: Optional[Cosmology] = None,
         sky_area: Optional[float] = None,
         los_pop: Optional[LOSPop] = None,
+        los_galaxies: Optional[bool] = False,
+        los_area_range: Optional[list]=None
     ):
         """
         :param deflector_population: Deflector population as an deflectors class
@@ -30,6 +33,11 @@ class LensPop(LensedPopulationBase):
         :type sky_area: `~astropy.units.Quantity`
         :param los_pop: Configuration for line of sight distribution. Defaults to None.
         :type los_pop: `~LOSPop` or None
+        :param los_galaxies: boolean. If True, a LineofSightGalaxie class is retuirned 
+         along with lens population.
+        :param los_area_range: The area in the lens image where random galaxies 
+         need to be rendered. This is list or array of minimum and maximum area. 
+         If provided a area is drawn uniformly from this range. Default is None.
         """
 
         # TODO: ADD EXCEPTION FOR DEFLECTOR AND SOURCE POP FILTER MISMATCH
@@ -47,6 +55,8 @@ class LensPop(LensedPopulationBase):
         self.los_pop = los_pop
         if self.los_pop is None:
             self.los_pop = LOSPop()
+        self.los_galaxies = los_galaxies
+        self.los_area_range = los_area_range
 
     def select_lens_at_random(self, test_area=None, **kwargs_lens_cut):
         """Draw a random lens within the cuts of the lens and source, with
@@ -142,6 +152,7 @@ class LensPop(LensedPopulationBase):
 
         # Initialize an empty list to store the Lens instances
         lens_population = []
+        los_galaxy_pop = []
         # Estimate the number of lensing systems
         num_lenses = self.deflector_number
         # num_sources = self._source_galaxies.galaxies_number()
@@ -201,6 +212,15 @@ class LensPop(LensedPopulationBase):
                         los_class=los_class,
                     )
                     lens_population.append(lens_final)
+                    if self.los_galaxies is True:
+                        los_galaxy_class = LineofSightGalaxies(
+                            source_population=self._sources,
+                            deflector_class=_deflector,
+                            cosmo=self.cosmo,
+                            reference_area_range=self.los_area_range)
+                        los_galaxy_pop.append(los_galaxy_class)
+        if self.los_galaxies is True:
+            return lens_population, los_galaxy_pop
         return lens_population
 
 

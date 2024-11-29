@@ -1,6 +1,6 @@
 import numpy as np
 from slsim.lens import Lens
-from slsim.lens_pop import draw_test_area
+#from slsim.lens_pop import draw_test_area
 
 class LineofSightGalaxies(Lens):
     """Class to manage line of sight galxies for a lens.
@@ -35,6 +35,7 @@ class LineofSightGalaxies(Lens):
         """
         vd = deflector_class.velocity_dispersion(cosmo=cosmo)
         if reference_area_range is None:
+            from slsim.lens_pop import draw_test_area
             self._test_area = line_of_sight_area_factor * draw_test_area(v_sigma=vd)
         else:
             self._test_area = np.random.uniform(reference_area_range[0],
