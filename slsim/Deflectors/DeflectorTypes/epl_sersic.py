@@ -48,7 +48,7 @@ class EPLSersic(DeflectorBase):
             vel_disp = None
         return vel_disp
 
-    def _einstein_radius(self, lens_cosmo=None):
+    def einstein_radius(self, lens_cosmo=None):
         """Einstein radius of the deflector.
 
         :param lens_cosmo: lens cosmology model
@@ -96,7 +96,7 @@ class EPLSersic(DeflectorBase):
         if lens_cosmo.z_lens >= lens_cosmo.z_source:
             theta_E = 0.0
         else:
-            theta_E = self._einstein_radius(lens_cosmo=lens_cosmo)
+            theta_E = self.einstein_radius(lens_cosmo=lens_cosmo)
 
         e1_mass, e2_mass = self.mass_ellipticity
         e1_mass_lenstronomy, e2_mass_lenstronomy = ellipticity_slsim_to_lenstronomy(

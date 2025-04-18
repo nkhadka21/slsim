@@ -11,6 +11,9 @@ from astropy import units as u
 from astropy.stats import sigma_clipped_stats
 from astropy.convolution import Gaussian2DKernel
 import warnings
+import copy
+from lenstronomy.Analysis.lens_profile import LensProfileAnalysis
+from lenstronomy.LensModel.lens_model import LensModel
 
 
 def epsilon2e(epsilon):
@@ -706,3 +709,33 @@ def surface_brightness_reff(angular_size, source_model_list, kwargs_extended_sou
         surface_brightness_amp, mag_zero_point=_mag_zero_dummy
     )
     return mag_arcsec2
+
+def numerical_einstein_radius(lens_model_list, kwargs_lens, deflector_redshift,
+                               source_redshift):
+        """Einstein radius of a given deflctor-source pair.
+
+        :param lens_model_list: list of lens models
+        :type lens_model: str. They follow lenstronomy convention.
+        :param kwargs_lens: dictionary of lens parameter. They should follow 
+         lenstronomy convention.
+        :param deflector_redshift: redshift of the deflector
+        :param source_redshift: redshift of the source
+        :return: einstein radius of a lens-source pair.
+        """
+        lens_model = LensModel(
+            lens_model_list=lens_model_list,
+            z_lens=deflector_redshift,
+            z_source_convention=source_redshift,
+            multi_plane=False,
+            z_source=source_redshift,
+        )
+        # numerical solution for the Einstein radius
+        lens_analysis = LensProfileAnalysis(lens_model=lens_model)
+        kwargs_lens_ = copy.deepcopy(kwargs_lens)
+        for d in kwargs_lens_:
+            d["center_x"] = 0
+            d["center_y"] = 0
+        theta_E = lens_analysis.effective_einstein_radius(
+            kwargs_lens_, r_min=1e-4, r_max=5e1, num_points=100
+        )
+        return theta_E

@@ -44,7 +44,7 @@ class CompoundLensHalosGalaxies(DeflectorsBase):
         column_names = halo_galaxy_list.columns
         if "vel_disp" not in column_names:
             halo_galaxy_list["vel_disp"] = -np.ones(n)
-        if "mag_g" not in column_names:
+        """if "mag_g" not in column_names:
             halo_galaxy_list["mag_g"] = -np.ones(n)
         if "mag_r" not in column_names:
             halo_galaxy_list["mag_r"] = -np.ones(n)
@@ -52,8 +52,8 @@ class CompoundLensHalosGalaxies(DeflectorsBase):
             halo_galaxy_list["mag_i"] = -np.ones(n)
         if "mag_z" not in column_names:
             halo_galaxy_list["mag_z"] = -np.ones(n)
-        if "mag_Y" not in column_names:
-            halo_galaxy_list["mag_Y"] = -np.ones(n)
+        if "mag_y" not in column_names:
+            halo_galaxy_list["mag_y"] = -np.ones(n)"""
         if "e1_light" not in column_names or "e2_light" not in column_names:
             halo_galaxy_list["e1_light"] = -np.ones(n)
             halo_galaxy_list["e2_light"] = -np.ones(n)
@@ -85,7 +85,7 @@ class CompoundLensHalosGalaxies(DeflectorsBase):
         cosmo = self._cosmo
         index = random.randint(0, self._num_select - 1)
         deflector = self._galaxy_select[index]
-        if deflector["vel_disp"] == -1:
+        """if deflector["vel_disp"] == -1:
             theta_eff = deflector["tb"] / 0.551  # [arcsec]
             reff = (
                 theta_eff
@@ -101,21 +101,8 @@ class CompoundLensHalosGalaxies(DeflectorsBase):
                 cosmo,
                 deflector["z"],
             )
-            deflector["vel_disp"] = vel_disp
-        # if (
-        #     deflector["mag_g"] == -1
-        #     or deflector["mag_r"]
-        #     or deflector["mag_i"] == -1
-        #     or deflector["mag_z"]
-        #     or deflector["mag_Y"] == -1
-        # ):
-        #     mag_g, mag_r, mag_i, mag_z, mag_Y = (
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #     )  # TODO: make function if needed
+            deflector["vel_disp"] = vel_disp"""
+
         if deflector["e1_light"] == -1 or deflector["e2_light"] == -1:
             e1_light, e2_light, e1_mass, e2_mass = elliptical_projected_eccentricity(
                 **deflector

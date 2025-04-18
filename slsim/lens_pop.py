@@ -178,6 +178,8 @@ class LensPop(LensedPopulationBase):
             num_sources_tested = self.get_num_sources_tested(
                 testarea=test_area * speed_factor
             )
+            if num_sources_tested == 0:
+                print("0: False")
 
             if num_sources_tested > 0:
                 valid_sources = []

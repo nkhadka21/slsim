@@ -319,6 +319,7 @@ class Lens(LensedSystemBase):
         z_lens = self.deflector.redshift
         z_source = source.redshift
         if z_lens >= z_source:
+            print("1: False")
             return False
 
         # Criteria 2: The angular Einstein radius of the lensing configuration (theta_E)
@@ -330,6 +331,7 @@ class Lens(LensedSystemBase):
             <= 2 * self._einstein_radius(source)
             <= max_image_separation
         ):
+            print("2: False")
             return False
 
         # Criteria 3: The distance between the lens center and the source position
@@ -348,6 +350,7 @@ class Lens(LensedSystemBase):
             np.sum((center_lens - center_source) ** 2)
             > self._einstein_radius(source) ** 2 * 2
         ):
+            print("3: False")
             return False
 
         # Criteria 4: The lensing configuration must produce at least two SL images.
@@ -356,6 +359,7 @@ class Lens(LensedSystemBase):
         else:
             image_positions = self._extended_source_image_positions(source)
         if len(image_positions[0]) < 2:
+            print("4: False")
             return False
 
         # Criteria 5: The maximum separation between any two image positions must be
@@ -363,6 +367,7 @@ class Lens(LensedSystemBase):
         # equal to the maximum image separation.
         image_separation = image_separation_from_positions(image_positions)
         if not min_image_separation <= image_separation <= max_image_separation:
+            print("5: False")
             return False
 
         # Criteria 6: (optional)
@@ -505,13 +510,17 @@ class Lens(LensedSystemBase):
             theta_E /= (1 - kappa_ext) ** (1.0 / (gamma_pl - 1))
         else:
             # numerical solution for the Einstein radius
-            lens_analysis = LensProfileAnalysis(lens_model=lens_model)
+            """lens_analysis = LensProfileAnalysis(lens_model=lens_model)
             kwargs_lens_ = copy.deepcopy(kwargs_lens)
-            kwargs_lens_[0]["center_x"] = 0
-            kwargs_lens_[0]["center_y"] = 0
+            for kwargs in kwargs_lens_:
+                if "center_x" in kwargs:
+                    kwargs["center_x"] = 0
+                if "center_y" in kwargs:
+                    kwargs["center_y"] = 0
             theta_E = lens_analysis.effective_einstein_radius(
                 kwargs_lens_, r_min=1e-4, r_max=5e1, num_points=100
-            )
+            )"""
+            theta_E = self.deflector.einstein_radius(cosmo=self.cosmo)
         return theta_E
 
     def deflector_ellipticity(self):
@@ -1173,20 +1182,20 @@ def image_separation_from_positions(image_positions):
     return image_separation
 
 
-def theta_e_when_source_infinity(deflector_dict=None, v_sigma=None):
+def theta_e_when_source_infinity(theta_E=None, v_sigma=None):
     """Calculate Einstein radius in arc-seconds for a source at infinity.
 
-    :param deflector_dict: deflector properties
+    :param theta_E: Einstein radius of a deflector in arcsec when source is at infinity
     :param v_sigma: velocity dispersion in km/s
     :return: Einstein radius in arc-seconds
     """
     if v_sigma is None:
-        if deflector_dict is None:
-            raise ValueError("Either deflector_dict or v_sigma must be provided")
+        if theta_E is None:
+            raise ValueError("Either theta_E or v_sigma must be provided")
         else:
-            v_sigma = deflector_dict["vel_disp"]
-
-    theta_E_infinity = (
+            theta_E_infinity = theta_E
+    else:
+        theta_E_infinity = (
         4 * np.pi * (v_sigma * 1000.0 / constants.c) ** 2 / constants.arcsec
     )
     return theta_E_infinity

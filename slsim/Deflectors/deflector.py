@@ -105,6 +105,17 @@ class Deflector(object):
         :return: e1_mass, e2_mass
         """
         return self._deflector.mass_ellipticity
+    
+    def einstein_radius(self, cosmo):
+        """ Provides einstein radius of a deflector with source at infinity.
+         Here, we use source redshift equal to 500 for the practical purpose.
+
+        :param cosmo: cosmology
+        :type cosmo: ~astropy.cosmology class
+        :return: Einstein radius in arcsec
+        """
+        
+        return self._deflector.einstein_radius(cosmo)
 
     def mass_model_lenstronomy(self, lens_cosmo):
         """Returns lens model instance and parameters in lenstronomy

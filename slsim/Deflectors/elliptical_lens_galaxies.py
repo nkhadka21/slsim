@@ -89,13 +89,13 @@ class EllipticalLensGalaxies(DeflectorsBase):
         number = self._num_select
         return number
 
-    def draw_deflector(self):
+    def draw_deflector(self, index):
         """
 
         :return: dictionary of complete parameterization of deflector
         """
 
-        index = random.randint(0, self._num_select - 1)
+        #index = random.randint(0, self._num_select - 1)
         deflector = self._galaxy_select[index]
         if deflector["e1_light"] == -1 or deflector["e2_light"] == -1:
             e1_light, e2_light, e1_mass, e2_mass = elliptical_projected_eccentricity(

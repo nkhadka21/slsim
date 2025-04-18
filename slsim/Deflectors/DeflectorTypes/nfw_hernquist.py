@@ -1,7 +1,10 @@
 from slsim.Deflectors.DeflectorTypes.deflector_base import DeflectorBase
 from slsim.Deflectors.velocity_dispersion import vel_disp_composite_model
-from slsim.Util.param_util import ellipticity_slsim_to_lenstronomy
+from slsim.Util.param_util import ellipticity_slsim_to_lenstronomy, numerical_einstein_radius
+from lenstronomy.Cosmo.lens_cosmo import LensCosmo
 from lenstronomy.Util import constants
+import numpy as np
+import copy
 
 
 class NFWHernquist(DeflectorBase):
@@ -99,6 +102,38 @@ class NFWHernquist(DeflectorBase):
             },
         ]
         return lens_mass_model_list, kwargs_lens_mass
+    
+    def einstein_radius(self, cosmo):
+        """ Provides einstein radius of a deflector with source at infinity.
+         Here, we use source redshift equal to 500 for the practical purpose.
+
+        :param cosmo: cosmology
+        :type cosmo: ~astropy.cosmology class
+        :return: Einstein radius in arcsec
+        """
+        """lens_cosmo = LensCosmo(
+            z_lens=self.redshift,
+            z_source=1000, # here we need source redshift but at this point we do not 
+            #have source information. So, we compute einstein radius with source at 
+            # infinity but for the practical purpose we use very high redshift 
+            # i.e. 500 instead of infinity.
+            cosmo=cosmo,
+        )
+        lens_model_list, kwargs_lens = self.mass_model_lenstronomy(lens_cosmo=lens_cosmo)
+        kwargs_lens_ = copy.deepcopy(kwargs_lens)
+        for kwargs in kwargs_lens_:
+            if "center_x" in kwargs:
+                kwargs["center_x"] = 0
+            if "center_y" in kwargs:
+                kwargs["center_y"] = 0
+        theta_E = numerical_einstein_radius(lens_model_list=lens_model_list, 
+                        kwargs_lens=kwargs_lens_, deflector_redshift=self.redshift,
+                               source_redshift=1000)"""
+        v_sigma = self.velocity_dispersion(cosmo=cosmo)
+        theta_E  = (
+        4 * np.pi * (v_sigma * 1000.0 / constants.c) ** 2 / constants.arcsec
+    )
+        return theta_E
 
     def light_model_lenstronomy(self, band=None):
         """Returns lens model instance and parameters in lenstronomy
